@@ -9,19 +9,29 @@ from fastapi import FastAPI, File, Form, UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from main import build_crew, generate_html_chart
 
 app = FastAPI(title="AI Resume Analyzer API")
 
+# Allow configuring allowed origins via env var for production
+# e.g. ALLOWED_ORIGINS=https://your-app.vercel.app
+_raw_origins = os.environ.get("ALLOWED_ORIGINS", "*")
+allowed_origins = [o.strip() for o in _raw_origins.split(",")] if _raw_origins != "*" else ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-HTML_REPORT_PATH = os.path.join(os.getcwd(), "resume_results.html")
+# Store report relative to this file, safe for any deployment environment
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+HTML_REPORT_PATH = os.path.join(BASE_DIR, "resume_results.html")
 
 
 # ─────────────────────────────────────────────

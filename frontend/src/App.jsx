@@ -19,8 +19,9 @@ import {
   Loader2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import API_BASE from './config.js';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE_URL = API_BASE;
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('dashboard');
@@ -71,7 +72,7 @@ export default function App() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/run`, { method: 'POST', body: form });
+      const res = await fetch(`${API_BASE_URL}/run`, { method: 'POST', body: form });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail ?? 'Something went wrong');
       setReport(data.output);
@@ -84,7 +85,7 @@ export default function App() {
   }
 
   function handleDownload() {
-    window.open(`${API_BASE}/download-report`, '_blank');
+    window.open(`${API_BASE_URL}/download-report`, '_blank');
   }
 
   return (
