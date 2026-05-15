@@ -1,5 +1,5 @@
 crewai==0.86.0
-crewai-tools==0.35.8
+crewai-tools==0.36.0
 openai==1.82.0
 fastapi==0.115.12
 uvicorn[standard]==0.34.3
