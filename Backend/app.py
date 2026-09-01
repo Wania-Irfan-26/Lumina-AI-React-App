@@ -1,6 +1,5 @@
-import os
-import io
-import json
+import asyncio
+from functools import partial
 
 import PyPDF2
 import docx2txt
@@ -85,7 +84,9 @@ async def run_pipeline_from_uploads(files: List[UploadFile], job_description: st
     if not job_description.strip():
         raise ValueError("Job description cannot be empty.")
 
-    raw_result = build_crew(resumes, job_description, top_n)
+    raw_result = await asyncio.get_event_loop().run_in_executor(
+        None, partial(build_crew, resumes, job_description, top_n)
+    )
 
     try:
         start = raw_result.find("{")
