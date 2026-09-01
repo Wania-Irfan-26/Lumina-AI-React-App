@@ -69,6 +69,7 @@ export default function App() {
     const form = new FormData();
     files.forEach(f => form.append('files', f));
     form.append('job_description', jobDescription);
+    form.append('top_n', topResultsCount);
 
     setLoading(true);
     try {

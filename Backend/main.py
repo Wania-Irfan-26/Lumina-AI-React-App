@@ -71,7 +71,7 @@ def load_resumes_from_folder(folder_path: str) -> dict:
 # CREWAI AGENTS & TASKS
 # ─────────────────────────────────────────────
 
-def build_crew(resumes: dict, job_description: str) -> str:
+def build_crew(resumes: dict, job_description: str, top_n: int = 10) -> str:
     """Build and run the CrewAI crew to analyze resumes."""
 
     resumes_text = ""
@@ -178,15 +178,15 @@ def build_crew(resumes: dict, job_description: str) -> str:
     )
 
     task_report = Task(
-        description="""
-        Generate a FINAL JSON report of the TOP candidates (score >= 50, max 10).
+        description=f"""
+        Generate a FINAL JSON report of the TOP {top_n} candidates (score >= 50, max {top_n}).
         
         Return ONLY valid JSON in this exact format:
-        {
+        {{
           "job_summary": "one line summary of the role",
           "total_resumes_analyzed": <number>,
           "top_candidates": [
-            {
+            {{
               "rank": 1,
               "name": "Full Name",
               "score": 85,
@@ -199,9 +199,9 @@ def build_crew(resumes: dict, job_description: str) -> str:
               "strengths": ["strength1", "strength2", "strength3"],
               "gaps": ["gap1", "gap2"],
               "recommendation": "One-line hiring recommendation"
-            }
+            }}
           ]
-        }
+        }}
 
         Return ONLY the JSON object. No markdown, no explanation.
         """,

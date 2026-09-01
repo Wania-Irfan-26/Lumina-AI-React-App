@@ -75,7 +75,7 @@ async def load_resumes_from_uploads(files: List[UploadFile]) -> dict:
 # PIPELINE WRAPPER (upload-based)
 # ─────────────────────────────────────────────
 
-async def run_pipeline_from_uploads(files: List[UploadFile], job_description: str) -> dict:
+async def run_pipeline_from_uploads(files: List[UploadFile], job_description: str, top_n: int = 10) -> dict:
     """Load resumes from uploads, run CrewAI pipeline, return report dict."""
     resumes = await load_resumes_from_uploads(files)
 
@@ -85,13 +85,16 @@ async def run_pipeline_from_uploads(files: List[UploadFile], job_description: st
     if not job_description.strip():
         raise ValueError("Job description cannot be empty.")
 
-    raw_result = build_crew(resumes, job_description)
+    raw_result = build_crew(resumes, job_description, top_n)
 
     try:
         start = raw_result.find("{")
         end = raw_result.rfind("}") + 1
         report = json.loads(raw_result[start:end])
         report["total_resumes_analyzed"] = len(resumes)
+        # Enforce the requested count hard — don't rely on the AI to slice correctly
+        if "top_candidates" in report:
+            report["top_candidates"] = report["top_candidates"][:top_n]
     except Exception:
         report = {
             "job_summary": "Analysis complete",
@@ -118,9 +121,10 @@ def root():
 async def run_app(
     files: List[UploadFile] = File(...),
     job_description: str = Form(...),
+    top_n: int = Form(10),
 ):
     try:
-        report = await run_pipeline_from_uploads(files, job_description)
+        report = await run_pipeline_from_uploads(files, job_description, top_n)
         return {"output": report}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
