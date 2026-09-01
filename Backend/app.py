@@ -1,4 +1,7 @@
 import asyncio
+import os
+import io
+import json
 from functools import partial
 
 import PyPDF2
